@@ -24,5 +24,19 @@ function love.update(dt)
 end
 
 function love.draw()
-  love.graphics.circle("fill", jogador.x, jogador.y, jogador.raio)
+  love.graphics.printf(
+    "FPS: " .. love.timer.getFPS(),
+    love.graphics.newFont(16),
+    5,
+    love.graphics.getHeight() - 25,
+    love.graphics.getWidth()
+  )
+
+  if jogo.estado.rodando then
+    love.graphics.circle("fill", jogador.x, jogador.y, jogador.raio)
+  end
+
+  if not jogo.estado.rodando then
+    love.graphics.circle("fill", jogador.x, jogador.y, jogador.raio / 2)
+  end
 end
