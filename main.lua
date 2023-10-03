@@ -16,7 +16,7 @@ local jogador = {
 }
 
 function love.load()
-
+  love.mouse.setVisible(false)
 end
 
 function love.update(dt)
