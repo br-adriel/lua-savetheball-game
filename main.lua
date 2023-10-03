@@ -1,5 +1,14 @@
 local love = require("love")
 
+local jogo = {
+  estado = {
+    menu = true,
+    pausado = false,
+    rodando = false,
+    finalizado = false,
+  }
+}
+
 local jogador = {
   raio = 20,
   x = 30,
