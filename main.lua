@@ -11,13 +11,15 @@ local jogo = {
     pausado = false,
     rodando = false,
     finalizado = false,
-  }
+  },
+  niveis = { 15, 30, 60, 120, }
 }
 
 local jogador = {
   raio = 20,
   x = 30,
   y = 30,
+  pontos = 0,
 }
 
 local botoes = {
@@ -26,13 +28,20 @@ local botoes = {
 
 local inimigos = {}
 
-local function iniciarNovoJogo()
-  -- atualiza estado do jogo
-  jogo.estado.menu = false;
-  jogo.estado.rodando = true;
+local function mudarEstadoJogo(estado)
+  jogo.estado.finalizado = estado == "finalizado"
+  jogo.estado.menu = estado == "menu"
+  jogo.estado.pausado = estado == "pausado"
+  jogo.estado.rodando = estado == "rodando"
+end
 
-  -- gera inimigos
-  table.insert(inimigos, 1, Inimigo())
+local function iniciarNovoJogo()
+  mudarEstadoJogo("rodando")
+
+  jogador.pontos = 0
+  inimigos = {
+    Inimigo(1)
+  }
 end
 
 function love.mousepressed(x, y, button, isTouch, presses)
@@ -61,8 +70,20 @@ function love.update(dt)
   -- atualiza posicao dos inimigos
   if jogo.estado.rodando then
     for i = 1, #inimigos do
-      inimigos[i]:move(jogador.x, jogador.y)
+      if inimigos[i]:checkTouched(jogador.x, jogador.y, jogador.raio) then
+        mudarEstadoJogo("menu")
+      else
+        for i = 1, #jogo.niveis do
+          if (math.floor(jogador.pontos)) == jogo.niveis[i] then
+            table.insert(inimigos, 1, Inimigo(jogo.dificuldade * (i + 1)))
+            jogador.pontos = jogador.pontos + 1
+          end
+        end
+
+        inimigos[i]:move(jogador.x, jogador.y)
+      end
     end
+    jogador.pontos = jogador.pontos + dt
   end
 end
 
@@ -78,6 +99,11 @@ function love.draw()
   )
 
   if jogo.estado.rodando then
+    love.graphics.printf(
+      math.floor(jogador.pontos), love.graphics.newFont(24),
+      0, 10, love.graphics.getWidth(), "center"
+    )
+
     love.graphics.circle("fill", jogador.x, jogador.y, jogador.raio)
 
     for i = 1, #inimigos do
