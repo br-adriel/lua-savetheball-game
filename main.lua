@@ -8,7 +8,6 @@ local jogo = {
   dificuldade = 1,
   estado = {
     menu = true,
-    pausado = false,
     rodando = false,
     finalizado = false,
   },
@@ -38,7 +37,8 @@ local jogador = {
 }
 
 local botoes = {
-  estado_menu = {}
+  estado_menu = {},
+  estado_finalizado = {},
 }
 
 local inimigos = {}
@@ -46,7 +46,6 @@ local inimigos = {}
 local function mudarEstadoJogo(estado)
   jogo.estado.finalizado = estado == "finalizado"
   jogo.estado.menu = estado == "menu"
-  jogo.estado.pausado = estado == "pausado"
   jogo.estado.rodando = estado == "rodando"
 end
 
@@ -66,6 +65,10 @@ function love.mousepressed(x, y, button, isTouch, presses)
         for index in pairs(botoes.estado_menu) do
           botoes.estado_menu[index]:checkPressed(x, y, jogador.raio)
         end
+      elseif jogo.estado.finalizado then
+        for index in pairs(botoes.estado_finalizado) do
+          botoes.estado_finalizado[index]:checkPressed(x, y, jogador.raio)
+        end
       end
     end
   end
@@ -74,9 +77,12 @@ end
 function love.load()
   love.mouse.setVisible(false)
 
-  botoes.estado_menu.jogar = Botao("Jogar", iniciarNovoJogo, nil, 120, 40)
-  botoes.estado_menu.configuracoes = Botao("Configurações", nil, nil, 120, 40)
-  botoes.estado_menu.sair = Botao("Sair", love.event.quit, nil, 120, 40)
+  botoes.estado_menu.jogar = Botao("Jogar", iniciarNovoJogo, nil, 160, 40)
+  botoes.estado_menu.sair = Botao("Sair", love.event.quit, nil, 160, 40)
+
+  botoes.estado_finalizado.jogar_novamente = Botao("Jogar novamente", iniciarNovoJogo, nil, 240, 50)
+  botoes.estado_finalizado.menu = Botao("Menu", mudarEstadoJogo, "menu", 240, 50)
+  botoes.estado_finalizado.sair = Botao("Sair", love.event.quit, nil, 240, 50)
 end
 
 function love.update(dt)
@@ -86,7 +92,7 @@ function love.update(dt)
   if jogo.estado.rodando then
     for i = 1, #inimigos do
       if inimigos[i]:checkTouched(jogador.x, jogador.y, jogador.raio) then
-        mudarEstadoJogo("menu")
+        mudarEstadoJogo("finalizado")
       else
         for i = 1, #jogo.niveis do
           if (math.floor(jogador.pontos)) == jogo.niveis[i] then
@@ -128,8 +134,37 @@ function love.draw()
     end
   elseif jogo.estado.menu then
     botoes.estado_menu.jogar:draw(10, 20, 17, 10)
-    botoes.estado_menu.configuracoes:draw(10, 70, 17, 10)
-    botoes.estado_menu.sair:draw(10, 120, 17, 10)
+    botoes.estado_menu.sair:draw(10, 70, 17, 10)
+  elseif jogo.estado.finalizado then
+    love.graphics.setFont(fontes.grande.fonte)
+
+    botoes.estado_finalizado.jogar_novamente:draw(
+      love.graphics.getWidth() / 2 - 120,
+      love.graphics.getHeight() / 2,
+      17,
+      10
+    )
+    botoes.estado_finalizado.menu:draw(
+      love.graphics.getWidth() / 2 - 120,
+      love.graphics.getHeight() / 2 + 10 + 50,
+      17,
+      10
+    )
+    botoes.estado_finalizado.sair:draw(
+      love.graphics.getWidth() / 2 - 120,
+      love.graphics.getHeight() / 2 + 2 * (10 + 50),
+      17,
+      10
+    )
+
+    love.graphics.printf(
+      math.floor(jogador.pontos),
+      fontes.gigante.fonte,
+      0,
+      love.graphics.getHeight() / 2 - fontes.gigante.tamanho - 10,
+      love.graphics.getWidth(),
+      "center"
+    )
   end
 
   if not jogo.estado.rodando then
