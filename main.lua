@@ -15,6 +15,21 @@ local jogo = {
   niveis = { 15, 30, 60, 120, }
 }
 
+local fontes = {
+  media = {
+    fonte = love.graphics.newFont(16),
+    tamanho = 16,
+  },
+  grande = {
+    fonte = love.graphics.newFont(24),
+    tamanho = 24,
+  },
+  gigante = {
+    fonte = love.graphics.newFont(60),
+    tamanho = 60,
+  },
+}
+
 local jogador = {
   raio = 20,
   x = 30,
@@ -88,11 +103,13 @@ function love.update(dt)
 end
 
 function love.draw()
-  love.graphics.scale(1.5, 1.5)
+  -- love.graphics.scale(1.5, 1.5)
+
+  love.graphics.setFont(fontes.media.fonte)
 
   love.graphics.printf(
     "FPS: " .. love.timer.getFPS(),
-    love.graphics.newFont(16),
+    fontes.media.fonte,
     5,
     love.graphics.getHeight() - 25,
     love.graphics.getWidth()
@@ -100,7 +117,7 @@ function love.draw()
 
   if jogo.estado.rodando then
     love.graphics.printf(
-      math.floor(jogador.pontos), love.graphics.newFont(24),
+      math.floor(jogador.pontos), fontes.grande.fonte,
       0, 10, love.graphics.getWidth(), "center"
     )
 
